@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
     [Header("Combine")]
     public float combineDistance;//player can combine beneath the distance
     public float waitingTime;
+    public BalanceSystem balanceSystem;
 
     private float partnerHeightWithRadius;
     private float partnerHeightOnly;
@@ -69,24 +70,7 @@ public class PlayerController : MonoBehaviour
             }
             else if( partner.GetComponent<PlayerController>().state == PlayerState.waitingForCombine)
             {
-                Debug.Log("combine success");
-                //set state
-                partner.GetComponent<PlayerController>().state = PlayerState.combine_upper;
-                state = PlayerState.combine_under;
-
-                //disable under's move and collider
-                rigidBody.isKinematic = true;
-                GetComponent<Collider>().enabled = false;
-
-                //expand upper's collider
-                var collider = partner.GetComponent<CapsuleCollider>();
-                collider.height *= 2f;
-                collider.center = new Vector3(0, -partnerHeightOnly / 2.0f, 0);
-
-                //set parent to sync the move
-                partner.transform.position = new Vector3(transform.position.x, transform.position.y + partnerHeightWithRadius/2.0f, transform.position.z);
-                transform.parent = partner.transform;
-
+                Evently.Instance.Publish(new CombineEvent(partner.GetComponent<PlayerController>(),this));
             }
         }
 
